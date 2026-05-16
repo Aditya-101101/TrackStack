@@ -1,13 +1,21 @@
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const result = dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-console.log("dotenv result:", result.error ? result.error.message : "loaded");
-console.log("cwd:", process.cwd());
+dotenv.config({
+  path: path.join(__dirname, "../.env"),
+});
+
+console.log("REDIS_URL exists:", !!process.env.REDIS_URL);
+console.log("MONGO_URI exists:", !!process.env.MONGO_URI);
+
 const { default: connectDB } = await import("./config/db.js");
 
 await connectDB();
 
-await import("./workers/test.worker.js");
+await import("./workers/check.worker.js");
 
 console.log("Worker process running...");
