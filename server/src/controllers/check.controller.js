@@ -15,10 +15,22 @@ export const runManualCheck = asyncHandler(async (req, res) => {
     if (!monitor.isActive)
         throw new ApiError(400, "Cannot check a paused monitor")
 
-    const job = await checkQueue.add("manual-check", {
-        monitorId: monitor._id.toString(),
-        userId: req.user._id.toString(),
-    })
+    const job = await checkQueue.add(
+        "manual-check",
+        {
+            monitorId: monitor._id.toString(),
+            userId: req.user._id.toString(),
+        },
+        {
+            attempts: 3,
+            backoff: {
+                type: "exponential",
+                delay: 2000,
+            },
+            removeOnComplete: true,
+            removeOnFail: false,
+        }
+    );
 
     res.status(202).json({
         success: true,

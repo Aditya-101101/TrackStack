@@ -136,7 +136,7 @@ export const resumeMonitor = asyncHandler(async (req, res) => {
       nextCheckAt: new Date(),
     },
     {
-      new: true,
+      returnDocument: "after",
       runValidators: true,
     }
   );

@@ -7,8 +7,10 @@ import authRoutes from './routes/auth.routes.js'
 import monitorRoutes from './routes/monitor.routes.js'
 import checkRoutes from './routes/check.route.js'
 import resultRoutes from './routes/result.routes.js'
+import incidentRoutes from "./routes/incident.route.js";
 
-const app=express()
+
+const app = express()
 
 app.use(helmet())
 
@@ -19,21 +21,22 @@ app.use(cors({
 
 app.use(express.json())
 
-app.get('/',(req,res)=>{
-    res.json({message:"TrackStack API running"})
+app.get('/', (req, res) => {
+    res.json({ message: "TrackStack API running" })
 })
 
-app.get('/health',(req,res)=>{
+app.get('/health', (req, res) => {
     res.json({
-        status:"ok",
-        service:"TrackStack API",
+        status: "ok",
+        service: "TrackStack API",
     })
 })
 
-app.use('/api/auth',authRoutes)
-app.use('/api/monitors',monitorRoutes)
-app.use('/api/monitors',checkRoutes)
-app.use('/api/monitors',resultRoutes)
+app.use('/api/auth', authRoutes)
+app.use('/api', incidentRoutes)
+app.use('/api/monitors', monitorRoutes)
+app.use('/api/monitors', checkRoutes)
+app.use('/api/monitors', resultRoutes)
 app.use(errorMiddleware)
 
 export default app;

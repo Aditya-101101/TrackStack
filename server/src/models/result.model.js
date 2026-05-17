@@ -40,6 +40,10 @@ const resultSchema = new mongoose.Schema({
     },
 }, { timestamps: true })
 
+resultSchema.index({ monitorId: 1, checkedAt: -1 });
+resultSchema.index({ userId: 1, checkedAt: -1 });
+
+
 const Result = mongoose.model("Result", resultSchema)
 
 export default Result
