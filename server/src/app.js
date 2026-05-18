@@ -8,6 +8,8 @@ import monitorRoutes from './routes/monitor.routes.js'
 import checkRoutes from './routes/check.route.js'
 import resultRoutes from './routes/result.routes.js'
 import incidentRoutes from "./routes/incident.route.js";
+import dashboardRoutes from './routes/dashboard.routes.js'
+import statsRoute from './routes/stats.route.js'
 
 
 const app = express()
@@ -34,9 +36,12 @@ app.get('/health', (req, res) => {
 
 app.use('/api/auth', authRoutes)
 app.use('/api', incidentRoutes)
-app.use('/api/monitors', monitorRoutes)
+app.use('/api/dashboard',dashboardRoutes)
+app.use('/api/monitors',statsRoute)
 app.use('/api/monitors', checkRoutes)
 app.use('/api/monitors', resultRoutes)
+app.use('/api/monitors', monitorRoutes)
+
 app.use(errorMiddleware)
 
 export default app;
