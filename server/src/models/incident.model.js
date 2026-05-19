@@ -41,6 +41,7 @@ const incidentSchema = new mongoose.Schema({
 
 incidentSchema.index({ monitorId: 1, status: 1 });
 incidentSchema.index({ userId: 1, startedAt: -1 });
+incidentSchema.index({ userId: 1, status: 1 });
 
 const Incident = mongoose.model("Incident", incidentSchema);
 

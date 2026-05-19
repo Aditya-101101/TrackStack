@@ -42,7 +42,7 @@ const resultSchema = new mongoose.Schema({
 
 resultSchema.index({ monitorId: 1, checkedAt: -1 });
 resultSchema.index({ userId: 1, checkedAt: -1 });
-
+resultSchema.index({ userId: 1, status: 1 });
 
 const Result = mongoose.model("Result", resultSchema)
 

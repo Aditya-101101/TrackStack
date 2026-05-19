@@ -85,6 +85,82 @@ export const getMonitorStats = asyncHandler(async (req, res) => {
         .sort({ checkedAt: 1 })
         .select("status statusCode responseTime errorMessage checkedAt");
 
+    const responseTimes = await Result.find({
+        monitorId,
+        userId,
+        responseTime: { $ne: null },
+    })
+        .sort({ responseTime: 1 })
+        .select("responseTime");
+
+    const minResponseTime =
+        responseTimes.length > 0 ? responseTimes[0].responseTime : 0;
+
+    const maxResponseTime =
+        responseTimes.length > 0
+            ? responseTimes[responseTimes.length - 1].responseTime
+            : 0;
+
+    const p95Index =
+        responseTimes.length > 0
+            ? Math.ceil(0.95 * responseTimes.length) - 1
+            : 0;
+
+    const p95ResponseTime =
+        responseTimes.length > 0 ? responseTimes[p95Index].responseTime : 0;
+
+
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+    const last7DaysStats = await Result.aggregate([
+        {
+            $match: {
+                monitorId: monitor._id,
+                userId,
+                checkedAt: { $gte: sevenDaysAgo },
+            },
+        },
+        {
+            $group: {
+                _id: {
+                    $dateToString: {
+                        format: "%Y-%m-%d",
+                        date: "$checkedAt",
+                    },
+                },
+                totalChecks: { $sum: 1 },
+                upChecks: {
+                    $sum: {
+                        $cond: [{ $eq: ["$status", "UP"] }, 1, 0],
+                    },
+                },
+                downChecks: {
+                    $sum: {
+                        $cond: [{ $eq: ["$status", "DOWN"] }, 1, 0],
+                    },
+                },
+                avgResponseTime: { $avg: "$responseTime" },
+            },
+        },
+        {
+            $sort: { _id: 1 },
+        },
+    ]);
+
+    const formattedLast7DaysStats = last7DaysStats.map((day) => ({
+        date: day._id,
+        totalChecks: day.totalChecks,
+        upChecks: day.upChecks,
+        downChecks: day.downChecks,
+        uptimePercentage:
+            day.totalChecks > 0
+                ? Number(((day.upChecks / day.totalChecks) * 100).toFixed(2))
+                : 0,
+        avgResponseTime: day.avgResponseTime
+            ? Math.round(day.avgResponseTime)
+            : 0,
+    }));
+
     res.status(200).json({
         success: true,
         stats: {
@@ -105,6 +181,13 @@ export const getMonitorStats = asyncHandler(async (req, res) => {
             totalIncidents,
             openIncidents,
             recentIncidents,
+            p95ResponseTime,
+            minResponseTime,
+            maxResponseTime,
+            totalIncidents,
+            openIncidents,
+            recentIncidents,
+            last7DaysStats: formattedLast7DaysStats,
         },
     });
 });
