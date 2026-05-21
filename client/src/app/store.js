@@ -1,11 +1,12 @@
 import {configureStore} from "@reduxjs/toolkit"
-import authReducer from '../features/auth/authSlice'
-import dashboardReducer from '../features/dashboard/dashboardSlice'
-
+import authReducer from '../features/auth/authSlice.js'
+import dashboardReducer from '../features/dashboard/dashboardSlice.js'
+import monitorReducer from '../features/monitors/monitorSlice.js'
 
 export const store=configureStore({
     reducer:{
         auth:authReducer,
         dashboard:dashboardReducer,
+        monitors:monitorReducer,
     }
 })

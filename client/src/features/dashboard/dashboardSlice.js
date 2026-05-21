@@ -6,7 +6,7 @@ export const fetchDashboardSummary = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const res = await api.get("/dashboard/summary");
-      return res.data;
+      return res.data.summary;
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.message || "Failed to fetch dashboard summary"
