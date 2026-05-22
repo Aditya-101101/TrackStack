@@ -1,11 +1,26 @@
-import { Navigate } from 'react-router-dom'
-import { useSelector } from 'react-redux'
+import { useEffect } from "react";
+import { Navigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../features/auth/authSlice.js";
+import { isTokenExpired } from "../utils/token.js";
 
-export default function ProtectedRoute({ children }) {
-    const { token } = useSelector((state) => state.auth)
+const ProtectedRoute = ({ children }) => {
+  const dispatch = useDispatch();
+  const { token } = useSelector((state) => state.auth);
 
-    if (!token)
-        return <Navigate to="/login" replace />
+  const expired = token ? isTokenExpired(token) : true;
 
-    return children
-} 
+  useEffect(() => {
+    if (expired) {
+      dispatch(logout());
+    }
+  }, [expired, dispatch]);
+
+  if (expired) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};
+
+export default ProtectedRoute;

@@ -23,29 +23,53 @@ function MonitorCard({ monitor }) {
           </a>
         </div>
 
-        <MonitorStatusBadge status={monitor.status} />
+        <MonitorStatusBadge
+          status={!monitor.isActive ? "PAUSED" : monitor.status}
+        />
       </div>
 
-      <div className="grid grid-cols-2 gap-3 mt-5 text-sm">
-        <div className="rounded-lg bg-gray-50 p-3">
-          <div className="flex items-center gap-2 text-gray-500">
-            <Timer size={15} />
-            Response
-          </div>
-          <p className="font-semibold mt-1">
-            {monitor.lastResponseTime != null
-              ? `${monitor.lastResponseTime} ms`
-              : "N/A"}
+      <div className="grid grid-cols-2 gap-4 mt-5 text-sm">
+        <div>
+          <p className="text-gray-500">Method</p>
+          <p className="font-medium text-gray-900">
+            {monitor.method || "GET"}
           </p>
         </div>
 
-        <div className="rounded-lg bg-gray-50 p-3">
-          <div className="flex items-center gap-2 text-gray-500">
-            <Clock size={15} />
-            Interval
-          </div>
-          <p className="font-semibold mt-1">
-            {monitor.intervalMinutes || monitor.interval || "N/A"} min
+        <div>
+          <p className="text-gray-500">Interval</p>
+          <p className="font-medium text-gray-900">
+            {monitor.interval ? `${monitor.interval} sec` : "-"}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-gray-500">Timeout</p>
+          <p className="font-medium text-gray-900">
+            {monitor.timeout ? `${monitor.timeout / 1000} sec` : "-"}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-gray-500">Response Time</p>
+          <p className="font-medium text-gray-900">
+            {monitor.lastResponseTime ? `${monitor.lastResponseTime} ms` : "-"}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-gray-500">Last Checked</p>
+          <p className="font-medium text-gray-900">
+            {monitor.lastCheckedAt
+              ? new Date(monitor.lastCheckedAt).toLocaleString()
+              : "-"}
+          </p>
+        </div>
+
+        <div>
+          <p className="text-gray-500">Active</p>
+          <p className="font-medium text-gray-900">
+            {monitor.isActive ? "Yes" : "No"}
           </p>
         </div>
       </div>
