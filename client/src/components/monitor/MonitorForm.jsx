@@ -15,10 +15,12 @@ const MonitorForm = ({
     interval: initialData.interval || 60,
     timeout: initialData.timeout || 10000,
   });
-  
+
   const [localError, setLocalError] = useState("");
-  
+
   useEffect(() => {
+    if (!initialData) return;
+
     setFormData({
       name: initialData.name || "",
       url: initialData.url || "",
@@ -26,8 +28,13 @@ const MonitorForm = ({
       interval: initialData.interval || 60,
       timeout: initialData.timeout || 10000,
     });
-  }, [initialData]);
-
+  }, [
+    initialData?.name,
+    initialData?.url,
+    initialData?.method,
+    initialData?.interval,
+    initialData?.timeout,
+  ]);
 
   const handleChange = (e) => {
     setFormData((prev) => ({

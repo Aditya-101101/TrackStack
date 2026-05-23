@@ -17,7 +17,8 @@ export const getMonitorIncidents = asyncHandler(async (req, res) => {
     const incidents = await Incident.find({
         monitorId: monitor._id,
         userId: req.user._id,
-    }).sort({ startedAt: -1 });
+    }).populate("monitorId", "name url status")
+        .populate("userId", "name email").sort({ startedAt: -1 });
 
     res.status(200).json({
         success: true,
@@ -29,7 +30,8 @@ export const getMonitorIncidents = asyncHandler(async (req, res) => {
 export const getAllIncidents = asyncHandler(async (req, res) => {
     const incidents = await Incident.find({
         userId: req.user._id,
-    }).sort({ startedAt: -1 });
+    }).populate("monitorId", "name url status")
+        .populate("userId", "name email").sort({ startedAt: -1 }).populate("");
 
     res.status(200).json({
         success: true,
@@ -42,7 +44,8 @@ export const getOpenIncidents = asyncHandler(async (req, res) => {
     const incidents = await Incident.find({
         userId: req.user._id,
         status: "OPEN",
-    }).sort({ startedAt: -1 });
+    }).populate("monitorId", "name url status")
+        .populate("userId", "name email").sort({ startedAt: -1 });
 
     res.status(200).json({
         success: true,

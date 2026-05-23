@@ -1,5 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { fetchMonitorResults } from "../../features/results/resultSlice.js";
+import { fetchMonitorStats } from "../../features/stats/statsSlice.js";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -12,18 +14,40 @@ import {
 
 import { fetchMonitorById, manualCheckMonitor, clearCheckMessage, toggleMonitorActive, deleteMonitor } from "../../features/monitors/monitorSlice.js";
 import MonitorStatusBadge from "../../components/monitor/MonitorStatusBadge.jsx";
+import { fetchMonitorIncidents } from "../../features/incidents/incidentSlice.js";
+import ResponseTimeChart from "../../components/charts/ResponseTimeChart.jsx";
+import StatusHistoryChart from "../../components/charts/StatusHistoryChart.jsx";
+import UptimeChart from "../../components/charts/UptimeChart";
 
 const MonitorDetails = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
 
+  const [showResults, setShowResults] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+
   const { selectedMonitor, loading, checking, checkMessage, error } = useSelector(
     (state) => state.monitors
   );
 
+  const { results, loading: resultsLoading } = useSelector(
+    (state) => state.results
+  );
+
+  const { stats, loading: statsLoading } = useSelector(
+    (state) => state.stats
+  );
+
+  const { monitorIncidents } = useSelector(
+    (state) => state.incidents
+  );
+
   useEffect(() => {
     dispatch(fetchMonitorById(id));
+    dispatch(fetchMonitorResults(id));
+    dispatch(fetchMonitorStats(id));
+    dispatch(fetchMonitorIncidents(id));
   }, [dispatch, id]);
 
   if (loading) {
@@ -237,6 +261,248 @@ const MonitorDetails = () => {
           </div>
         </div>
       </div>
+
+      <div className="mt-8">
+        <h2 className="text-2xl font-semibold mb-4">
+          Monitor Statistics
+        </h2>
+
+        {statsLoading ? (
+          <p>Loading stats...</p>
+        ) : stats ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <h3 className="text-gray-400 text-sm">
+                Uptime Percentage
+              </h3>
+
+              <p className="text-2xl font-bold text-green-400">
+                {stats.uptimePercentage}%
+              </p>
+            </div>
+
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <h3 className="text-gray-400 text-sm">
+                Total Checks
+              </h3>
+
+              <p className="text-2xl text-gray-200 font-bold">
+                {stats.totalChecks}
+              </p>
+            </div>
+
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <h3 className="text-gray-400 text-sm">
+                Successful Checks
+              </h3>
+
+              <p className="text-2xl font-bold text-green-400">
+                {stats.upChecks}
+              </p>
+            </div>
+
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <h3 className="text-gray-400 text-sm">
+                Failed Checks
+              </h3>
+
+              <p className="text-2xl font-bold text-red-400">
+                {stats.downChecks}
+              </p>
+            </div>
+
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <h3 className="text-gray-400 text-sm">
+                Average Response Time
+              </h3>
+
+              <p className="text-2xl text-gray-200 font-bold">
+                {stats.avgResponseTime} ms
+              </p>
+            </div>
+
+            <div className="bg-gray-800 p-4 rounded-lg">
+              <h3 className="text-gray-400 text-sm">
+                Current Status
+              </h3>
+
+              <p
+                className={`text-2xl font-bold ${stats.monitor.status === "UP"
+                  ? "text-green-400"
+                  : "text-red-400"
+                  }`}
+              >
+                {stats.monitor.status}
+              </p>
+            </div>
+
+          </div>
+        ) : (
+          <p>No stats available.</p>
+        )}
+      </div>
+
+      {stats?.last24hChecks?.length > 0 && (
+        <ResponseTimeChart
+          data={stats.last24hChecks}
+        />
+      )}
+
+      {stats?.last24hChecks?.length > 0 && (
+        <StatusHistoryChart
+          data={stats.last24hChecks}
+        />
+      )}
+
+      {stats && (
+        <UptimeChart
+          upChecks={stats.upChecks}
+          downChecks={stats.downChecks}
+        />
+      )}
+
+      <div className="mt-8">
+        <div className="flex items-center justify-between mb-4">
+
+          <h2 className="text-2xl font-semibold">
+            Incidents History
+          </h2>
+
+          <button
+            onClick={() => setShowHistory(!showHistory)}
+            className="bg-gray-800  text-white px-4 py-2 rounded hover:bg-gray-700 transition"
+          >
+            {showHistory ? "Hide Incidents" : "Show Incidents"}
+          </button>
+
+        </div>
+
+        {showHistory && (monitorIncidents.length === 0 ? (
+          <p>No incidents found for this monitor.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full border border-gray-700 rounded-lg overflow-hidden">
+              <thead className="bg-gray-800 text-white">
+                <tr>
+                  <th className="p-3 text-left">Status</th>
+                  <th className="p-3 text-left">Started At</th>
+                  <th className="p-3 text-left">Resolved At</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {monitorIncidents.map((incident) => (
+                  <tr
+                    key={incident._id}
+                    className="border-t border-gray-700"
+                  >
+                    <td className="p-3">
+                      <span
+                        className={`font-semibold ${incident.status === "OPEN"
+                          ? "text-red-500"
+                          : "text-green-500"
+                          }`}
+                      >
+                        {incident.status}
+                      </span>
+                    </td>
+
+                    <td className="p-3">
+                      {new Date(
+                        incident.startedAt || incident.createdAt
+                      ).toLocaleString()}
+                    </td>
+
+                    <td className="p-3">
+                      {incident.resolvedAt
+                        ? new Date(
+                          incident.resolvedAt
+                        ).toLocaleString()
+                        : "-"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-8">
+        <div className="flex items-center justify-between mb-4">
+
+          <h2 className="text-2xl font-semibold">
+            Recent Checks
+          </h2>
+
+          <button
+            onClick={() => setShowResults(!showResults)}
+            className="bg-gray-800  text-white px-4 py-2 rounded hover:bg-gray-700 transition"
+          >
+            {showResults ? "Hide Results" : "Show Results"}
+          </button>
+
+        </div>
+
+        {showResults && (resultsLoading ? (
+          <p>Loading results...</p>
+        ) : results.length === 0 ? (
+          <p>No check history found.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full border border-gray-700 rounded-lg overflow-hidden">
+              <thead className="bg-gray-800 text-white">
+                <tr>
+                  <th className="p-3 text-left">Status</th>
+                  <th className="p-3 text-left">Response Time</th>
+                  <th className="p-3 text-left">Status Code</th>
+                  <th className="p-3 text-left">Checked At</th>
+                  <th className="p-3 text-left">Error</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {results.map((result) => (
+                  <tr
+                    key={result._id}
+                    className="border-t border-gray-700"
+                  >
+                    <td className="p-3">
+                      <span
+                        className={
+                          result.status === "UP"
+                            ? "text-green-500 font-semibold"
+                            : "text-red-500 font-semibold"
+                        }
+                      >
+                        {result.status}
+                      </span>
+                    </td>
+
+                    <td className="p-3">
+                      {result.responseTime ?? "-"} ms
+                    </td>
+
+                    <td className="p-3">
+                      {result.statusCode ?? "-"}
+                    </td>
+
+                    <td className="p-3">
+                      {new Date(result.createdAt).toLocaleString()}
+                    </td>
+
+                    <td className="p-3 text-red-400">
+                      {result.errorMessage || "-"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
+      </div>
+
     </div>
   );
 };
