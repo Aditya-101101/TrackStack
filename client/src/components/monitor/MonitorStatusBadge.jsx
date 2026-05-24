@@ -1,19 +1,15 @@
 function MonitorStatusBadge({ status }) {
   const normalizedStatus = status?.toUpperCase();
 
-  const styles = {
-    UP: "bg-green-100 text-green-700 border-green-200",
-    DOWN: "bg-red-100 text-red-700 border-red-200",
-    UNKNOWN: "bg-gray-100 text-gray-700 border-gray-200",
-    PAUSED: "bg-yellow-100 text-yellow-700 border-yellow-200",
+  const badgeClass = {
+    UP: "status-badge status-badge-up",
+    DOWN: "status-badge status-badge-down",
+    PAUSED: "status-badge status-badge-paused",
+    UNKNOWN: "status-badge status-badge-unknown",
   };
 
   return (
-    <span
-      className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold ${
-        styles[normalizedStatus] || styles.UNKNOWN
-      }`}
-    >
+    <span className={badgeClass[normalizedStatus] || badgeClass.UNKNOWN}>
       {normalizedStatus || "UNKNOWN"}
     </span>
   );

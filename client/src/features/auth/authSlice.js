@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../api/axios";
+import toast from "react-hot-toast";
 
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
@@ -29,7 +30,9 @@ export const registerUser = createAsyncThunk(
 
 const initialState = {
   token: localStorage.getItem("token") || null,
-  user: null,
+  user: JSON.parse(
+    localStorage.getItem("user")
+  ) || null,
   loading: false,
   error: null,
 };
@@ -39,9 +42,11 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     logout: (state) => {
+
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
       state.token = null;
       state.user = null;
-      localStorage.removeItem("token");
     },
 
     clearAuthError: (state) => {
@@ -60,6 +65,8 @@ const authSlice = createSlice({
         state.token = action.payload.token;
         state.user = action.payload.user || null;
         localStorage.setItem("token", action.payload.token);
+        localStorage.setItem("user", JSON.stringify(action.payload.user))
+        toast.success("Welcome back");
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
@@ -75,6 +82,8 @@ const authSlice = createSlice({
         state.token = action.payload.token;
         state.user = action.payload.user || null;
         localStorage.setItem("token", action.payload.token);
+        localStorage.setItem("user", JSON.stringify(action.payload.user))
+        toast.success("Registered successfully");
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;

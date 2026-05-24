@@ -35,12 +35,12 @@ function Dashboard() {
   }, [dispatch]);
 
   if (loading) {
-    return <p className="text-gray-600">Loading dashboard...</p>;
+    return <p className="muted-text">Loading dashboard...</p>;
   }
 
   if (error) {
     return (
-      <div className="bg-red-100 text-red-700 px-4 py-3 rounded-lg">
+      <div className="alert-error">
         {error}
       </div>
     );
@@ -53,10 +53,10 @@ function Dashboard() {
   const openIncidents = summary?.openIncidents ?? 0;
 
   return (
-    <div>
+    <div className="space-y-10">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <p className="text-gray-600 mt-1">
+        <h1 className="page-title">Dashboard</h1>
+        <p className="muted-text mt-1">
           Overview of your uptime monitoring system.
         </p>
       </div>
@@ -98,13 +98,13 @@ function Dashboard() {
         />
       </div>
 
-      <div className="mt-10">
-        <h2 className="text-2xl font-semibold mb-4">
+      <div>
+        <h2 className="section-title mb-4">
           Open Incidents
         </h2>
 
         {OpenIncidents.length === 0 ? (
-          <div className="bg-gray-800 text-gray-400 p-5 rounded-xl">
+          <div className="card card-padding">
             <p className="text-green-400 font-medium">
               No active incidents 🎉
             </p>
@@ -114,12 +114,12 @@ function Dashboard() {
             {OpenIncidents.map((incident) => (
               <div
                 key={incident._id}
-                className="bg-gray-800 border border-red-500 rounded-xl p-5"
+                className="card card-padding border-red-500"
               >
                 <div className="flex justify-between items-start">
 
                   <div>
-                    <h3 className="text-xl font-semibold">
+                    <h3 className="card-title">
                       {incident.monitor?.name}
                     </h3>
 
@@ -128,7 +128,7 @@ function Dashboard() {
                     </p>
                   </div>
 
-                  <span className="text-sm text-gray-400">
+                  <span className="text-sm muted-text">
                     {new Date(
                       incident.startedAt || incident.createdAt
                     ).toLocaleString()}
@@ -147,8 +147,8 @@ function Dashboard() {
         />
       )}
 
-      <div className="mt-10">
-        <h2 className="text-2xl font-semibold mb-4">
+      <div>
+        <h2 className="section-title mb-4">
           Recent Activity
         </h2>
 
@@ -156,10 +156,10 @@ function Dashboard() {
           {summary?.recentChecks?.slice(0, 10).map((check) => (
             <div
               key={check._id}
-              className="bg-gray-800 p-4 rounded-xl flex justify-between items-center"
+              className="card card-padding flex justify-between items-center"
             >
               <div>
-                <h3 className="font-semibold text-white">
+                <h3 className="card-title">
                   {check.monitorId?.name || "Monitor"}
                 </h3>
 
@@ -175,7 +175,7 @@ function Dashboard() {
                 </p>
               </div>
 
-              <div className="text-right text-sm text-gray-400">
+              <div className="text-right text-sm muted-text">
                 <p>
                   {check.responseTime || "-"} ms
                 </p>
@@ -191,13 +191,13 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="mt-10">
-        <h2 className="text-2xl font-semibold mb-4">
+      <div>
+        <h2 className="section-title mb-4">
           Recent Monitors
         </h2>
 
         {monitors.length === 0 ? (
-          <div className="bg-gray-800 text-gray-400 p-5 rounded-xl">
+          <div className="card card-padding muted-text">
             <p>No monitors found.</p>
           </div>
         ) : (
@@ -206,16 +206,16 @@ function Dashboard() {
             {monitors.slice(0, 6).map((monitor) => (
               <div
                 key={monitor._id}
-                className="bg-gray-800 p-5 rounded-xl"
+                className="card card-padding"
               >
                 <div className="flex justify-between items-start">
 
                   <div>
-                    <h3 className="text-lg text-white font-semibold">
+                    <h3 className="card-title">
                       {monitor.name}
                     </h3>
 
-                    <p className="text-gray-400 text-sm mt-1 truncate">
+                    <p className="muted-text text-sm mt-1 truncate">
                       {monitor.url}
                     </p>
                   </div>
@@ -234,7 +234,7 @@ function Dashboard() {
                   </span>
                 </div>
 
-                <div className="mt-4 flex justify-between text-sm text-gray-400">
+                <div className="mt-4 flex justify-between text-sm muted-text">
                   <span>
                     {monitor.lastResponseTime || "-"} ms
                   </span>
@@ -249,6 +249,7 @@ function Dashboard() {
           </div>
         )}
       </div>
+ 
     </div>
   );
 }

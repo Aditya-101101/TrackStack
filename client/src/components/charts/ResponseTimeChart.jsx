@@ -9,29 +9,67 @@ import {
 } from "recharts";
 
 const ResponseTimeChart = ({ data }) => {
+
   const formattedData = data.map((check) => ({
     time: new Date(
       check.checkedAt || check.createdAt
-    ).toLocaleTimeString(),
+    ).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    }),
+
     responseTime: check.responseTime,
   }));
 
   return (
-    <div className="bg-gray-800 p-6 rounded-xl mt-8">
-      <h2 className="text-2xl font-semibold text-white mb-6">
-        Response Time (Last 24h)
-      </h2>
+    <div className="card card-padding transition-colors">
+      <div className="mb-6">
+        <h2 className="section-title">
+          Response Time
+        </h2>
 
+        <p className="muted-text text-sm mt-1">
+          Last 24 hours performance metrics
+        </p>
+      </div>
+
+      {/* CHART */}
       <ResponsiveContainer width="100%" height={350}>
         <LineChart data={formattedData}>
 
-          <CartesianGrid strokeDasharray="3 3" />
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="#374151"
+            opacity={0.2}
+          />
 
-          <XAxis dataKey="time" />
+          <XAxis
+            dataKey="time"
+            tick={{
+              fill: "#9CA3AF",
+              fontSize: 12,
+            }}
+            tickLine={false}
+            axisLine={false}
+          />
 
-          <YAxis />
+          <YAxis
+            tick={{
+              fill: "#9CA3AF",
+              fontSize: 12,
+            }}
+            tickLine={false}
+            axisLine={false}
+          />
 
-          <Tooltip />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: "#111827",
+              border: "none",
+              borderRadius: "12px",
+              color: "#fff",
+            }}
+          />
 
           <Line
             type="monotone"
@@ -39,7 +77,11 @@ const ResponseTimeChart = ({ data }) => {
             stroke="#3b82f6"
             strokeWidth={3}
             dot={false}
+            activeDot={{
+              r: 6,
+            }}
           />
+
         </LineChart>
       </ResponsiveContainer>
     </div>

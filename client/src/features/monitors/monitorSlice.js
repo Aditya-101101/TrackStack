@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import api from "../../api/axios.js";
+import toast from "react-hot-toast";
 
 const initialState = {
     monitors: [],
@@ -161,57 +162,96 @@ const monitorSlice = createSlice({
                 state.loading = true
                 state.error = null
             })
+
             .addCase(fetchMonitors.fulfilled, (state, action) => {
                 state.loading = false;
                 state.monitors = action.payload;
             })
+
             .addCase(fetchMonitors.rejected, (state, action) => {
+                toast.error(action.payload || "Failed to fetch monitors")
+
                 state.loading = false;
                 state.error = action.payload;
             })
+
             .addCase(createMonitor.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
+
             .addCase(createMonitor.fulfilled, (state, action) => {
+                toast.success("Monitor created successfully")
+
                 state.loading = false;
                 state.monitors.unshift(action.payload);
             })
+
             .addCase(createMonitor.rejected, (state, action) => {
+                toast.error(action.payload || "Failed to create monitor")
+
                 state.loading = false;
                 state.error = action.payload;
             })
+
             .addCase(fetchMonitorById.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
+
             .addCase(fetchMonitorById.fulfilled, (state, action) => {
                 state.loading = false;
                 state.selectedMonitor = action.payload;
             })
+
             .addCase(fetchMonitorById.rejected, (state, action) => {
+                toast.error(action.payload || "Failed to fetch monitor")
+
                 state.loading = false;
                 state.error = action.payload;
             })
+
             .addCase(manualCheckMonitor.pending, (state) => {
                 state.checking = true;
                 state.error = null;
                 state.checkMessage = null;
             })
+
             .addCase(manualCheckMonitor.fulfilled, (state, action) => {
+                toast.success(
+                    action.payload.message || "Manual check queued"
+                )
+
                 state.checking = false;
-                state.checkMessage = action.payload.message || "Manual check queued";
+
+                state.checkMessage =
+                    action.payload.message || "Manual check queued";
             })
+
             .addCase(manualCheckMonitor.rejected, (state, action) => {
+                toast.error(action.payload || "Manual check failed")
+
                 state.checking = false;
                 state.error = action.payload;
             })
+
             .addCase(toggleMonitorActive.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
+
             .addCase(toggleMonitorActive.fulfilled, (state, action) => {
+
+                const isActive = action.payload.isActive;
+
+                toast.success(
+                    isActive
+                        ? "Monitor resumed"
+                        : "Monitor paused"
+                )
+
                 state.loading = false;
+
                 state.selectedMonitor = action.payload;
 
                 const index = state.monitors.findIndex(
@@ -222,15 +262,22 @@ const monitorSlice = createSlice({
                     state.monitors[index] = action.payload;
                 }
             })
+
             .addCase(toggleMonitorActive.rejected, (state, action) => {
+                toast.error(action.payload || "Failed to update monitor")
+
                 state.loading = false;
                 state.error = action.payload;
             })
+
             .addCase(deleteMonitor.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
+
             .addCase(deleteMonitor.fulfilled, (state, action) => {
+                toast.success("Monitor deleted")
+
                 state.loading = false;
 
                 state.monitors = state.monitors.filter(
@@ -239,16 +286,24 @@ const monitorSlice = createSlice({
 
                 state.selectedMonitor = null;
             })
+
             .addCase(deleteMonitor.rejected, (state, action) => {
+                toast.error(action.payload || "Failed to delete monitor")
+
                 state.loading = false;
                 state.error = action.payload;
             })
+
             .addCase(updateMonitor.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
+
             .addCase(updateMonitor.fulfilled, (state, action) => {
+                toast.success("Monitor updated successfully")
+
                 state.loading = false;
+
                 state.selectedMonitor = action.payload;
 
                 const index = state.monitors.findIndex(
@@ -259,7 +314,10 @@ const monitorSlice = createSlice({
                     state.monitors[index] = action.payload;
                 }
             })
+
             .addCase(updateMonitor.rejected, (state, action) => {
+                toast.error(action.payload || "Failed to update monitor")
+
                 state.loading = false;
                 state.error = action.payload;
             });

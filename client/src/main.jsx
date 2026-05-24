@@ -5,13 +5,20 @@ import App from './App.jsx'
 import { BrowserRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import { store } from './app/store.js'
+import { Toaster } from "react-hot-toast";
+import { applyTheme, getStoredTheme } from "./utils/theme.js";
 
+const storedTheme = getStoredTheme();
+if (storedTheme) {
+  applyTheme(storedTheme);
+}
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Provider store={store}>
       <BrowserRouter>
         <App />
+        <Toaster position="top-right" />
       </BrowserRouter>
     </Provider>
   </StrictMode>,

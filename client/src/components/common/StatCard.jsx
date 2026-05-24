@@ -1,18 +1,20 @@
 function StatCard({ title, value, subtitle, icon: Icon }) {
   return (
-    <div className="bg-white rounded-xl border p-5 shadow-sm">
+    <div className="card card-padding">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm text-gray-500">{title}</p>
-          <h3 className="text-3xl font-bold mt-2">{value}</h3>
+          <p className="text-sm muted-text">{title}</p>
+          <h3 className="text-3xl font-bold mt-2 text-gray-900 dark:text-white">
+            {value}
+          </h3>
 
           {subtitle && (
-            <p className="text-sm text-gray-500 mt-2">{subtitle}</p>
+            <p className="text-sm muted-text mt-2">{subtitle}</p>
           )}
         </div>
 
         {Icon && (
-          <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center">
+          <div className="h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-900 flex items-center justify-center text-gray-700 dark:text-gray-300">
             <Icon size={20} />
           </div>
         )}

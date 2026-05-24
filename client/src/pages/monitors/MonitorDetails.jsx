@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchMonitorById,
+  manualCheckMonitor,
+  clearCheckMessage,
+  toggleMonitorActive,
+  deleteMonitor,
+} from "../../features/monitors/monitorSlice.js";
 import { fetchMonitorResults } from "../../features/results/resultSlice.js";
 import { fetchMonitorStats } from "../../features/stats/statsSlice.js";
+import { fetchMonitorIncidents } from "../../features/incidents/incidentSlice.js";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -11,37 +19,75 @@ import {
   Pause,
   Trash2,
 } from "lucide-react";
-
-import { fetchMonitorById, manualCheckMonitor, clearCheckMessage, toggleMonitorActive, deleteMonitor } from "../../features/monitors/monitorSlice.js";
 import MonitorStatusBadge from "../../components/monitor/MonitorStatusBadge.jsx";
-import { fetchMonitorIncidents } from "../../features/incidents/incidentSlice.js";
 import ResponseTimeChart from "../../components/charts/ResponseTimeChart.jsx";
 import StatusHistoryChart from "../../components/charts/StatusHistoryChart.jsx";
 import UptimeChart from "../../components/charts/UptimeChart";
+
+const btnOutline =
+  "inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-900 text-sm font-medium transition-colors";
+const btnDanger =
+  "inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 text-sm font-medium transition-colors";
+const tableTh = "p-4 text-left text-sm font-semibold";
+const tableRow = "border-t border-gray-200 dark:border-gray-800";
+
+const MONITOR_METRICS = (monitor) => [
+  { label: "Method", value: monitor.method || "-" },
+  {
+    label: "Interval",
+    value: monitor.interval ? `${monitor.interval} sec` : "-",
+  },
+  {
+    label: "Timeout",
+    value: monitor.timeout ? `${monitor.timeout / 1000} sec` : "-",
+  },
+  {
+    label: "Response Time",
+    value: monitor.lastResponseTime
+      ? `${monitor.lastResponseTime} ms`
+      : "-",
+  },
+  {
+    label: "Consecutive Successes",
+    value: monitor.consecutiveSuccesses || 0,
+  },
+  {
+    label: "Consecutive Failures",
+    value: monitor.consecutiveFailures || 0,
+  },
+  {
+    label: "Last Checked",
+    value: monitor.lastCheckedAt
+      ? new Date(monitor.lastCheckedAt).toLocaleString()
+      : "-",
+  },
+  {
+    label: "Next Check",
+    value: monitor.nextCheckAt
+      ? new Date(monitor.nextCheckAt).toLocaleString()
+      : "-",
+  },
+];
 
 const MonitorDetails = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
-
   const [showResults, setShowResults] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
 
-  const { selectedMonitor, loading, checking, checkMessage, error } = useSelector(
-    (state) => state.monitors
-  );
-
+  const {
+    selectedMonitor,
+    loading,
+    checking,
+    checkMessage,
+    error,
+  } = useSelector((state) => state.monitors);
   const { results, loading: resultsLoading } = useSelector(
     (state) => state.results
   );
-
-  const { stats, loading: statsLoading } = useSelector(
-    (state) => state.stats
-  );
-
-  const { monitorIncidents } = useSelector(
-    (state) => state.incidents
-  );
+  const { stats, loading: statsLoading } = useSelector((state) => state.stats);
+  const { monitorIncidents } = useSelector((state) => state.incidents);
 
   useEffect(() => {
     dispatch(fetchMonitorById(id));
@@ -51,94 +97,116 @@ const MonitorDetails = () => {
   }, [dispatch, id]);
 
   if (loading) {
-    return <p className="text-gray-500">Loading monitor...</p>;
+    return <p className="muted-text">Loading monitor...</p>;
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 text-red-700 border border-red-200 px-4 py-3 rounded-lg">
+      <div className="bg-red-500/10 border border-red-500/20 text-red-400 rounded-2xl px-4 py-3">
         {error}
       </div>
     );
   }
 
   if (!selectedMonitor) {
-    return <div className="text-gray-500">Monitor not found.</div>;
+    return <p className="muted-text">Monitor not found.</p>;
   }
 
   const handleManualCheck = async () => {
     const result = await dispatch(manualCheckMonitor(id));
-
-    // console.log("MANUAL CHECK DISPATCH RESULT:", result);
-
     if (manualCheckMonitor.fulfilled.match(result)) {
-      setTimeout(() => {
-        dispatch(fetchMonitorById(id));
-      }, 1500);
-
-      setTimeout(() => {
-        dispatch(clearCheckMessage());
-      }, 3000);
+      setTimeout(() => dispatch(fetchMonitorById(id)), 1500);
+      setTimeout(() => dispatch(clearCheckMessage()), 3000);
     }
   };
 
   const handleToggleActive = async () => {
-    const nextActiveState = !selectedMonitor.isActive;
-
-    const result = await dispatch(
+    await dispatch(
       toggleMonitorActive({
         id,
-        isActive: nextActiveState,
+        isActive: !selectedMonitor.isActive,
       })
     );
-
-    // console.log("TOGGLE ACTIVE DISPATCH RESULT:", result);
   };
 
   const handleDeleteMonitor = async () => {
     const confirmed = window.confirm(
       "Are you sure you want to delete this monitor?"
     );
-
     if (!confirmed) return;
-
     const result = await dispatch(deleteMonitor(id));
-
-    // console.log("DELETE DISPATCH RESULT:", result);
-
     if (deleteMonitor.fulfilled.match(result)) {
       navigate("/monitors");
     }
   };
 
+  const displayStatus = !selectedMonitor.isActive
+    ? "PAUSED"
+    : selectedMonitor.status;
+
+  const statCards = stats
+    ? [
+        {
+          label: "Uptime Percentage",
+          value: `${stats.uptimePercentage}%`,
+          valueClass: "mt-2 text-3xl font-bold text-green-400",
+        },
+        {
+          label: "Total Checks",
+          value: stats.totalChecks,
+          valueClass:
+            "mt-2 text-3xl font-bold text-gray-900 dark:text-white",
+        },
+        {
+          label: "Successful Checks",
+          value: stats.upChecks,
+          valueClass: "mt-2 text-3xl font-bold text-green-400",
+        },
+        {
+          label: "Failed Checks",
+          value: stats.downChecks,
+          valueClass: "mt-2 text-3xl font-bold text-red-400",
+        },
+        {
+          label: "Average Response Time",
+          value: `${stats.avgResponseTime} ms`,
+          valueClass:
+            "mt-2 text-3xl font-bold text-gray-900 dark:text-white",
+        },
+        {
+          label: "Current Status",
+          value: stats.monitor.status,
+          valueClass: `mt-2 text-3xl font-bold ${
+            stats.monitor.status === "UP"
+              ? "text-green-400"
+              : "text-red-400"
+          }`,
+        },
+      ]
+    : [];
+
   return (
-    <div>
+    <div className="space-y-8">
       <Link
         to="/monitors"
-        className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-800 mb-6"
+        className="inline-flex items-center gap-2 text-sm muted-text hover:text-gray-900 dark:hover:text-white transition-colors"
       >
         <ArrowLeft size={16} />
         Back to Monitors
       </Link>
 
-      <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+      <div className="card p-6">
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
           <div>
             <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-3xl font-bold text-gray-900">
-                {selectedMonitor.name}
-              </h1>
-
-              <MonitorStatusBadge
-                status={!selectedMonitor.isActive ? "PAUSED" : selectedMonitor.status}
-              />
+              <h1 className="page-title">{selectedMonitor.name}</h1>
+              <MonitorStatusBadge status={displayStatus} />
             </div>
-
             <a
               href={selectedMonitor.url}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 mt-3 text-gray-500 hover:text-blue-600"
+              className="inline-flex items-center gap-2 mt-3 muted-text hover:text-blue-500 transition-colors"
             >
               {selectedMonitor.url}
               <ExternalLink size={16} />
@@ -149,360 +217,203 @@ const MonitorDetails = () => {
             <button
               onClick={handleManualCheck}
               disabled={checking}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+              className={btnOutline}
             >
               <Play size={16} />
               {checking ? "Queueing..." : "Manual Check"}
             </button>
-
             <Link
               to={`/monitors/${selectedMonitor._id}/edit`}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 text-sm font-medium"
+              className={btnOutline}
             >
               <Pencil size={16} />
               Edit
             </Link>
-
             <button
               onClick={handleToggleActive}
               disabled={loading}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+              className={btnOutline}
             >
               {selectedMonitor.isActive ? (
                 <>
                   <Pause size={16} />
-                  {loading ? "Pausing..." : "Pause"}
+                  Pause
                 </>
               ) : (
                 <>
                   <Play size={16} />
-                  {loading ? "Resuming..." : "Resume"}
+                  Resume
                 </>
               )}
             </button>
-
             <button
               onClick={handleDeleteMonitor}
               disabled={loading}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-red-300 text-red-600 hover:bg-red-50 text-sm font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+              className={btnDanger}
             >
               <Trash2 size={16} />
-              {loading ? "Deleting..." : "Delete"}
+              Delete
             </button>
           </div>
         </div>
 
         {checkMessage && (
-          <div className="mt-6 bg-green-50 text-green-700 border border-green-200 px-4 py-3 rounded-lg text-sm">
+          <div className="mt-6 bg-green-500/10 border border-green-500/20 text-green-400 rounded-xl px-4 py-3 text-sm">
             {checkMessage}
           </div>
         )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mt-8">
-          <div className="border border-gray-200 rounded-xl p-4">
-            <p className="text-sm text-gray-500">Method</p>
-            <p className="text-lg font-semibold mt-1">
-              {selectedMonitor.method || "-"}
-            </p>
-          </div>
-
-          <div className="border border-gray-200 rounded-xl p-4">
-            <p className="text-sm text-gray-500">Interval</p>
-            <p className="text-lg font-semibold mt-1">
-              {selectedMonitor.interval ? `${selectedMonitor.interval} sec` : "-"}
-            </p>
-          </div>
-
-          <div className="border border-gray-200 rounded-xl p-4">
-            <p className="text-sm text-gray-500">Timeout</p>
-            <p className="text-lg font-semibold mt-1">
-              {selectedMonitor.timeout ? `${selectedMonitor.timeout / 1000} sec` : "-"}
-            </p>
-          </div>
-
-          <div className="border border-gray-200 rounded-xl p-4">
-            <p className="text-sm text-gray-500">Response Time</p>
-            <p className="text-lg font-semibold mt-1">
-              {selectedMonitor.lastResponseTime
-                ? `${selectedMonitor.lastResponseTime} ms`
-                : "-"}
-            </p>
-          </div>
-
-          <div className="border border-gray-200 rounded-xl p-4">
-            <p className="text-sm text-gray-500">Consecutive Successes</p>
-            <p className="text-lg font-semibold mt-1">
-              {selectedMonitor.consecutiveSuccesses || 0}
-            </p>
-          </div>
-
-          <div className="border border-gray-200 rounded-xl p-4">
-            <p className="text-sm text-gray-500">Consecutive Failures</p>
-            <p className="text-lg font-semibold mt-1">
-              {selectedMonitor.consecutiveFailures || 0}
-            </p>
-          </div>
-
-          <div className="border border-gray-200 rounded-xl p-4">
-            <p className="text-sm text-gray-500">Last Checked</p>
-            <p className="text-lg font-semibold mt-1">
-              {selectedMonitor.lastCheckedAt
-                ? new Date(selectedMonitor.lastCheckedAt).toLocaleString()
-                : "-"}
-            </p>
-          </div>
-
-          <div className="border border-gray-200 rounded-xl p-4">
-            <p className="text-sm text-gray-500">Next Check</p>
-            <p className="text-lg font-semibold mt-1">
-              {selectedMonitor.nextCheckAt
-                ? new Date(selectedMonitor.nextCheckAt).toLocaleString()
-                : "-"}
-            </p>
-          </div>
+          {MONITOR_METRICS(selectedMonitor).map((item) => (
+            <div key={item.label} className="card p-5">
+              <p className="stat-label">{item.label}</p>
+              <p className="stat-value">{item.value}</p>
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="mt-8">
-        <h2 className="text-2xl font-semibold mb-4">
-          Monitor Statistics
-        </h2>
-
+      <div>
+        <h2 className="section-title mb-4">Monitor Statistics</h2>
         {statsLoading ? (
-          <p>Loading stats...</p>
+          <p className="muted-text">Loading stats...</p>
         ) : stats ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-
-            <div className="bg-gray-800 p-4 rounded-lg">
-              <h3 className="text-gray-400 text-sm">
-                Uptime Percentage
-              </h3>
-
-              <p className="text-2xl font-bold text-green-400">
-                {stats.uptimePercentage}%
-              </p>
-            </div>
-
-            <div className="bg-gray-800 p-4 rounded-lg">
-              <h3 className="text-gray-400 text-sm">
-                Total Checks
-              </h3>
-
-              <p className="text-2xl text-gray-200 font-bold">
-                {stats.totalChecks}
-              </p>
-            </div>
-
-            <div className="bg-gray-800 p-4 rounded-lg">
-              <h3 className="text-gray-400 text-sm">
-                Successful Checks
-              </h3>
-
-              <p className="text-2xl font-bold text-green-400">
-                {stats.upChecks}
-              </p>
-            </div>
-
-            <div className="bg-gray-800 p-4 rounded-lg">
-              <h3 className="text-gray-400 text-sm">
-                Failed Checks
-              </h3>
-
-              <p className="text-2xl font-bold text-red-400">
-                {stats.downChecks}
-              </p>
-            </div>
-
-            <div className="bg-gray-800 p-4 rounded-lg">
-              <h3 className="text-gray-400 text-sm">
-                Average Response Time
-              </h3>
-
-              <p className="text-2xl text-gray-200 font-bold">
-                {stats.avgResponseTime} ms
-              </p>
-            </div>
-
-            <div className="bg-gray-800 p-4 rounded-lg">
-              <h3 className="text-gray-400 text-sm">
-                Current Status
-              </h3>
-
-              <p
-                className={`text-2xl font-bold ${stats.monitor.status === "UP"
-                  ? "text-green-400"
-                  : "text-red-400"
-                  }`}
-              >
-                {stats.monitor.status}
-              </p>
-            </div>
-
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {statCards.map((card) => (
+              <div key={card.label} className="card p-5">
+                <p className="muted-text text-sm">{card.label}</p>
+                <p className={card.valueClass}>{card.value}</p>
+              </div>
+            ))}
           </div>
         ) : (
-          <p>No stats available.</p>
+          <p className="muted-text">No stats available.</p>
         )}
       </div>
 
       {stats?.last24hChecks?.length > 0 && (
-        <ResponseTimeChart
-          data={stats.last24hChecks}
-        />
+        <ResponseTimeChart data={stats.last24hChecks} />
       )}
-
       {stats?.last24hChecks?.length > 0 && (
-        <StatusHistoryChart
-          data={stats.last24hChecks}
-        />
+        <StatusHistoryChart data={stats.last24hChecks} />
       )}
-
       {stats && (
-        <UptimeChart
-          upChecks={stats.upChecks}
-          downChecks={stats.downChecks}
-        />
+        <UptimeChart upChecks={stats.upChecks} downChecks={stats.downChecks} />
       )}
 
-      <div className="mt-8">
+      <div>
         <div className="flex items-center justify-between mb-4">
-
-          <h2 className="text-2xl font-semibold">
-            Incidents History
-          </h2>
-
+          <h2 className="section-title">Incidents History</h2>
           <button
             onClick={() => setShowHistory(!showHistory)}
-            className="bg-gray-800  text-white px-4 py-2 rounded hover:bg-gray-700 transition"
+            className={btnOutline}
           >
             {showHistory ? "Hide Incidents" : "Show Incidents"}
           </button>
-
         </div>
-
-        {showHistory && (monitorIncidents.length === 0 ? (
-          <p>No incidents found for this monitor.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full border border-gray-700 rounded-lg overflow-hidden">
-              <thead className="bg-gray-800 text-white">
-                <tr>
-                  <th className="p-3 text-left">Status</th>
-                  <th className="p-3 text-left">Started At</th>
-                  <th className="p-3 text-left">Resolved At</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {monitorIncidents.map((incident) => (
-                  <tr
-                    key={incident._id}
-                    className="border-t border-gray-700"
-                  >
-                    <td className="p-3">
-                      <span
-                        className={`font-semibold ${incident.status === "OPEN"
-                          ? "text-red-500"
-                          : "text-green-500"
-                          }`}
-                      >
-                        {incident.status}
-                      </span>
-                    </td>
-
-                    <td className="p-3">
-                      {new Date(
-                        incident.startedAt || incident.createdAt
-                      ).toLocaleString()}
-                    </td>
-
-                    <td className="p-3">
-                      {incident.resolvedAt
-                        ? new Date(
-                          incident.resolvedAt
-                        ).toLocaleString()
-                        : "-"}
-                    </td>
+        {showHistory &&
+          (monitorIncidents.length === 0 ? (
+            <p className="muted-text">No incidents found.</p>
+          ) : (
+            <div className="card overflow-x-auto">
+              <table className="min-w-full">
+                <thead className="bg-gray-100 dark:bg-gray-900">
+                  <tr>
+                    <th className={tableTh}>Status</th>
+                    <th className={tableTh}>Started At</th>
+                    <th className={tableTh}>Resolved At</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ))}
+                </thead>
+                <tbody>
+                  {monitorIncidents.map((incident) => (
+                    <tr key={incident._id} className={tableRow}>
+                      <td className="p-4">
+                        <span
+                          className={
+                            incident.status === "OPEN"
+                              ? "font-semibold text-red-400"
+                              : "font-semibold text-green-400"
+                          }
+                        >
+                          {incident.status}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        {new Date(
+                          incident.startedAt || incident.createdAt
+                        ).toLocaleString()}
+                      </td>
+                      <td className="p-4">
+                        {incident.resolvedAt
+                          ? new Date(incident.resolvedAt).toLocaleString()
+                          : "-"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ))}
       </div>
 
-      <div className="mt-8">
+      <div>
         <div className="flex items-center justify-between mb-4">
-
-          <h2 className="text-2xl font-semibold">
-            Recent Checks
-          </h2>
-
+          <h2 className="section-title">Recent Checks</h2>
           <button
             onClick={() => setShowResults(!showResults)}
-            className="bg-gray-800  text-white px-4 py-2 rounded hover:bg-gray-700 transition"
+            className={btnOutline}
           >
             {showResults ? "Hide Results" : "Show Results"}
           </button>
-
         </div>
-
-        {showResults && (resultsLoading ? (
-          <p>Loading results...</p>
-        ) : results.length === 0 ? (
-          <p>No check history found.</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full border border-gray-700 rounded-lg overflow-hidden">
-              <thead className="bg-gray-800 text-white">
-                <tr>
-                  <th className="p-3 text-left">Status</th>
-                  <th className="p-3 text-left">Response Time</th>
-                  <th className="p-3 text-left">Status Code</th>
-                  <th className="p-3 text-left">Checked At</th>
-                  <th className="p-3 text-left">Error</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {results.map((result) => (
-                  <tr
-                    key={result._id}
-                    className="border-t border-gray-700"
-                  >
-                    <td className="p-3">
-                      <span
-                        className={
-                          result.status === "UP"
-                            ? "text-green-500 font-semibold"
-                            : "text-red-500 font-semibold"
-                        }
-                      >
-                        {result.status}
-                      </span>
-                    </td>
-
-                    <td className="p-3">
-                      {result.responseTime ?? "-"} ms
-                    </td>
-
-                    <td className="p-3">
-                      {result.statusCode ?? "-"}
-                    </td>
-
-                    <td className="p-3">
-                      {new Date(result.createdAt).toLocaleString()}
-                    </td>
-
-                    <td className="p-3 text-red-400">
-                      {result.errorMessage || "-"}
-                    </td>
+        {showResults &&
+          (resultsLoading ? (
+            <p className="muted-text">Loading results...</p>
+          ) : results.length === 0 ? (
+            <p className="muted-text">No check history found.</p>
+          ) : (
+            <div className="card overflow-x-auto">
+              <table className="min-w-full">
+                <thead className="bg-gray-100 dark:bg-gray-900">
+                  <tr>
+                    <th className={tableTh}>Status</th>
+                    <th className={tableTh}>Response Time</th>
+                    <th className={tableTh}>Status Code</th>
+                    <th className={tableTh}>Checked At</th>
+                    <th className={tableTh}>Error</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ))}
+                </thead>
+                <tbody>
+                  {results.map((result) => (
+                    <tr key={result._id} className={tableRow}>
+                      <td className="p-4">
+                        <span
+                          className={
+                            result.status === "UP"
+                              ? "text-green-400 font-semibold"
+                              : "text-red-400 font-semibold"
+                          }
+                        >
+                          {result.status}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        {result.responseTime ?? "-"} ms
+                      </td>
+                      <td className="p-4">{result.statusCode ?? "-"}</td>
+                      <td className="p-4">
+                        {new Date(result.createdAt).toLocaleString()}
+                      </td>
+                      <td className="p-4 text-red-400">
+                        {result.errorMessage || "-"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ))}
       </div>
-
     </div>
   );
 };
