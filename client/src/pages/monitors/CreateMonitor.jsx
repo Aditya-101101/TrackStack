@@ -33,7 +33,7 @@ const CreateMonitor = () => {
           Back to Monitors
         </Link>
 
-        <h1 className="text-2xl font-bold text-gray-900">Create Monitor</h1>
+        <h1 className="text-2xl font-bold page-title">Create Monitor</h1>
         <p className="text-gray-500 mt-1">
           Add a new URL to start monitoring uptime.
         </p>

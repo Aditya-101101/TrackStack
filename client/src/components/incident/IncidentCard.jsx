@@ -4,12 +4,9 @@ const formatDuration = (start, end) => {
   if (!end) return "Ongoing";
 
   const diff = new Date(end) - new Date(start);
-
   const mins = Math.floor(diff / 60000);
 
-  if (mins < 60) {
-    return `${mins}m`;
-  }
+  if (mins < 60) return `${mins}m`;
 
   const hrs = Math.floor(mins / 60);
 
@@ -17,72 +14,80 @@ const formatDuration = (start, end) => {
 };
 
 const IncidentCard = ({ incident }) => {
+  const isOpen = incident.status === "OPEN";
+
   return (
     <div
       className={`
-        bg-white rounded-2xl p-5 shadow-sm border-l-4
-        ${
-          incident.status === "OPEN"
-            ? "border-red-500"
-            : "border-green-500"
-        }
+        card card-padding border-l-4
+        ${isOpen ? "border-red-500" : "border-green-500"}
       `}
     >
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-        
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+
         {/* LEFT */}
         <div className="flex items-start gap-4">
-          
+
           {/* STATUS DOT */}
-          <div className="relative mt-1">
+          <div className="relative mt-1.5 shrink-0">
             <div
               className={`
-                w-3 h-3 rounded-full
-                ${
-                  incident.status === "OPEN"
-                    ? "bg-red-500"
-                    : "bg-green-500"
-                }
+                h-3 w-3 rounded-full
+                ${isOpen ? "bg-red-500" : "bg-green-500"}
               `}
             />
 
-            {incident.status === "OPEN" && (
-              <div className="absolute inset-0 animate-ping bg-red-400 rounded-full" />
+            {isOpen && (
+              <div className="absolute inset-0 animate-ping rounded-full bg-red-400" />
             )}
           </div>
 
           {/* INFO */}
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900">
-              {incident.monitorId?.name || "Unknown Monitor"}
-            </h2>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-3">
 
-            <p className="text-sm text-gray-500 mt-1 break-all">
+              <h2 className="card-title wrap-break-word">
+                {incident.monitorId?.name || "Unknown Monitor"}
+              </h2>
+
+              <span
+                className={`
+      status-badge
+      ${isOpen ? "status-badge-down" : "status-badge-up"}
+    `}
+              >
+                {incident.status}
+              </span>
+            </div>
+
+            <p className="mt-1 break-all text-sm muted-text">
               {incident.monitorId?.url}
             </p>
 
-            <div className="mt-3 space-y-1">
-              <p className="text-sm text-gray-500">
+            <div className="mt-4 space-y-1.5 text-sm">
+              <p className="muted-text">
                 Started{" "}
-                {formatDistanceToNow(
-                  new Date(incident.startedAt),
-                  { addSuffix: true }
-                )}
+                <span className="text-gray-700 dark:text-gray-300">
+                  {formatDistanceToNow(new Date(incident.startedAt), {
+                    addSuffix: true,
+                  })}
+                </span>
               </p>
 
               {incident.resolvedAt && (
-                <p className="text-sm text-gray-500">
+                <p className="muted-text">
                   Resolved{" "}
-                  {formatDistanceToNow(
-                    new Date(incident.resolvedAt),
-                    { addSuffix: true }
-                  )}
+                  <span className="text-gray-700 dark:text-gray-300">
+                    {formatDistanceToNow(new Date(incident.resolvedAt), {
+                      addSuffix: true,
+                    })}
+                  </span>
                 </p>
               )}
 
-              <p className="text-sm text-gray-500">
-                Duration:{" "}
-                <span className="font-medium text-gray-700">
+              <p className="muted-text">
+                Duration{" "}
+                <span className="font-medium text-gray-900 dark:text-white">
                   {formatDuration(
                     incident.startedAt,
                     incident.resolvedAt
@@ -93,30 +98,12 @@ const IncidentCard = ({ incident }) => {
           </div>
         </div>
 
-    
-        <div className="flex flex-col items-start lg:items-end gap-3">
-          
-        
-          <span
-            className={`
-              px-3 py-1 rounded-full text-xs font-semibold
-              ${
-                incident.status === "OPEN"
-                  ? "bg-red-100 text-red-700"
-                  : "bg-green-100 text-green-700"
-              }
-            `}
-          >
-            {incident.status}
-          </span>
+        {/* RIGHT */}
+        <div className="flex flex-col items-start gap-2 lg:items-end">
+          <div className="text-sm lg:text-right">
+            <p className="muted-text">Incident ID</p>
 
-          {/* OPTIONAL EXTRA INFO */}
-          <div className="text-sm text-gray-500 text-left lg:text-right">
-            <p>
-              Incident ID
-            </p>
-
-            <p className="font-medium text-gray-700">
+            <p className="font-medium text-gray-900 dark:text-white">
               {incident._id.slice(-6)}
             </p>
           </div>

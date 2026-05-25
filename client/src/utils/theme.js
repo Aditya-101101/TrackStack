@@ -1,16 +1,11 @@
 export const applyTheme = (theme) => {
-
-  const root = window.document.documentElement;
-
-  root.classList.remove("light", "dark");
+  localStorage.setItem("theme", theme);
 
   if (theme === "dark") {
-    root.classList.add("dark");
+    document.documentElement.classList.add("dark");
   } else {
-    root.classList.add("light");
+    document.documentElement.classList.remove("dark");
   }
-
-  localStorage.setItem("theme", theme);
 };
 
 export const getStoredTheme = () => {

@@ -13,6 +13,7 @@ import StatCard from "../../components/common/StatCard.jsx";
 import { fetchOpenIncidents } from "../../features/incidents/incidentSlice.js";
 import ResponseTimeChart from "../../components/charts/ResponseTimeChart.jsx";
 import { fetchMonitors } from "../../features/monitors/monitorSlice.js";
+import DashboardSkeleton from "../../components/skeletons/DashboardSkeleton.jsx";
 
 
 function Dashboard() {
@@ -35,7 +36,7 @@ function Dashboard() {
   }, [dispatch]);
 
   if (loading) {
-    return <p className="muted-text">Loading dashboard...</p>;
+    return <DashboardSkeleton />;
   }
 
   if (error) {

@@ -5,9 +5,11 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { fetchMonitors } from "../../features/monitors/monitorSlice.js";
 import MonitorCard from "../../components/monitor/MonitorCard.jsx";
+import MonitorCardSkeleton from "../../components/skeletons/MonitorCardSkeleton.jsx";
+import  Skeleton  from "../../components/ui/skeleton.jsx";
 
 function Monitors() {
-  console.log("monitors page loaded")
+  // console.log("monitors page loaded")
   const dispatch = useDispatch();
 
   const { monitors, loading, error } = useSelector((state) => state.monitors);
@@ -17,7 +19,28 @@ function Monitors() {
   }, [dispatch]);
 
   if (loading) {
-    return <p className="text-gray-600">Loading monitors...</p>;
+    return (
+      <div className="page-main space-y-8">
+
+
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+
+          <div className="space-y-3">
+            <Skeleton className="h-10 w-52" />
+            <Skeleton className="h-5 w-80" />
+          </div>
+
+          <Skeleton className="h-12 w-40 rounded-xl" />
+        </div>
+
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
+          {[...Array(6)].map((_, i) => (
+            <MonitorCardSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+    );
   }
 
   if (error) {
