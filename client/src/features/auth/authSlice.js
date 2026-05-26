@@ -65,7 +65,13 @@ const authSlice = createSlice({
         state.token = action.payload.token;
         state.user = action.payload.user || null;
         localStorage.setItem("token", action.payload.token);
-        localStorage.setItem("user", JSON.stringify(action.payload.user))
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            name: action.payload.user.name,
+            email: action.payload.user.email,
+          })
+        );
         toast.success("Welcome back");
       })
       .addCase(loginUser.rejected, (state, action) => {
@@ -82,7 +88,13 @@ const authSlice = createSlice({
         state.token = action.payload.token;
         state.user = action.payload.user || null;
         localStorage.setItem("token", action.payload.token);
-        localStorage.setItem("user", JSON.stringify(action.payload.user))
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            name: action.payload.user.name,
+            email: action.payload.user.email,
+          })
+        );
         toast.success("Registered successfully");
       })
       .addCase(registerUser.rejected, (state, action) => {

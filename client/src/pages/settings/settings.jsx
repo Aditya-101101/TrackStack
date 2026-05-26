@@ -34,7 +34,6 @@ const Settings = () => {
   return (
     <div className="mx-auto max-w-4xl space-y-6 page-main">
 
-      {/* HEADER */}
       <div>
         <h1 className="page-title">Settings</h1>
 
@@ -43,7 +42,6 @@ const Settings = () => {
         </p>
       </div>
 
-      {/* PROFILE */}
       <div className="card card-padding space-y-5">
 
         <div>
@@ -96,7 +94,6 @@ const Settings = () => {
         </div>
       </div>
 
-      {/* APPEARANCE */}
       <div className="card card-padding">
 
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -127,7 +124,7 @@ const Settings = () => {
         </div>
       </div>
 
-      {/* DANGER ZONE */}
+
       <div className="rounded-2xl border border-red-200 bg-red-50 p-6 dark:border-red-900 dark:bg-red-950/20">
 
         <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">

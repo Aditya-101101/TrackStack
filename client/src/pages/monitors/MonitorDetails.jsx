@@ -279,7 +279,7 @@ const MonitorDetails = () => {
           
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="page-title break-words">
+              <h1 className="page-title wrap-break-word">
                 {selectedMonitor.name}
               </h1>
 
@@ -369,7 +369,7 @@ const MonitorDetails = () => {
                 {item.label}
               </p>
 
-              <p className="stat-value break-words">
+              <p className="stat-value wrap-break-word">
                 {item.value}
               </p>
             </div>
@@ -468,7 +468,7 @@ const MonitorDetails = () => {
               
               <div className="w-full overflow-x-auto">
                 
-                <table className="w-full min-w-[700px]">
+                <table className="w-full min-w-175">
                   
                   <thead className="bg-gray-100 dark:bg-gray-900">
                     <tr>
@@ -568,7 +568,7 @@ const MonitorDetails = () => {
               
               <div className="w-full overflow-x-auto">
                 
-                <table className="w-full min-w-[950px]">
+                <table className="w-full min-w-237.5">
                   
                   <thead className="bg-gray-100 dark:bg-gray-900">
                     <tr>
@@ -633,7 +633,7 @@ const MonitorDetails = () => {
                             ).toLocaleString()}
                           </td>
 
-                          <td className="max-w-[260px] truncate p-4 text-red-400">
+                          <td className="max-w-65 truncate p-4 text-red-400">
                             {result.errorMessage ||
                               "-"}
                           </td>
