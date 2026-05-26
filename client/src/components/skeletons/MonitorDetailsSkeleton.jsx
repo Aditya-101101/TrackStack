@@ -1,4 +1,4 @@
-import Skeleton from "../ui/Skeleton";
+import Skeleton from "../ui/Skeleton.jsx";
 
 const MetricBoxSkeleton = () => (
   <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-950">

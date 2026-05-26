@@ -8,12 +8,12 @@ import {
   Menu,
 } from "lucide-react";
 
-import { logout } from "../../features/auth/authSlice";
+import { logout } from "../../features/auth/authSlice.js";
 
 import {
   applyTheme,
   getStoredTheme,
-} from "../../utils/theme";
+} from "../../utils/theme.js";
 
 function Topbar({ setSidebarOpen }) {
   const dispatch = useDispatch();
@@ -73,10 +73,10 @@ function Topbar({ setSidebarOpen }) {
         dark:border-gray-800 dark:bg-gray-950
       "
     >
-      {/* LEFT */}
+  
       <div className="flex items-center gap-4">
         
-        {/* MOBILE SIDEBAR BUTTON */}
+       
         <button
           onClick={() => setSidebarOpen(true)}
           className="
@@ -90,7 +90,7 @@ function Topbar({ setSidebarOpen }) {
           <Menu size={20} />
         </button>
 
-        {/* USER INFO */}
+       
         <div>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Welcome
@@ -102,10 +102,9 @@ function Topbar({ setSidebarOpen }) {
         </div>
       </div>
 
-      {/* RIGHT */}
+    
       <div className="flex items-center gap-3">
         
-        {/* THEME TOGGLE */}
         <button
           onClick={toggleTheme}
           className="
@@ -127,7 +126,7 @@ function Topbar({ setSidebarOpen }) {
           )}
         </button>
 
-        {/* LOGOUT */}
+        
         <button
           onClick={handleLogout}
           className="

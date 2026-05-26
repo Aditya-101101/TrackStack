@@ -32,9 +32,9 @@ import MonitorStatusBadge from "../../components/monitor/MonitorStatusBadge.jsx"
 
 import ResponseTimeChart from "../../components/charts/ResponseTimeChart.jsx";
 import StatusHistoryChart from "../../components/charts/StatusHistoryChart.jsx";
-import UptimeChart from "../../components/charts/UptimeChart";
+import UptimeChart from "../../components/charts/UptimeChart.jsx";
 
-import MonitorDetailsSkeleton from "../../components/skeletons/MonitorDetailsSkeleton";
+import MonitorDetailsSkeleton from "../../components/skeletons/MonitorDetailsSkeleton.jsx";
 
 const btnOutline =
   "inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-gray-900";

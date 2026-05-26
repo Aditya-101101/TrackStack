@@ -1,4 +1,4 @@
-import Skeleton from "../ui/Skeleton";
+import Skeleton from "../ui/Skeleton.jsx";
 
 const StatCardSkeleton = () => (
   <div className="card card-padding space-y-4">

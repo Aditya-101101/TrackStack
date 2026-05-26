@@ -1,5 +1,5 @@
 import axios from "axios";
-import { clearAuthStorage, isTokenExpired } from "../utils/token";
+import { clearAuthStorage, isTokenExpired } from "../utils/token.js";
 
 const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",

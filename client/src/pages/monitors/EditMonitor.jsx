@@ -16,7 +16,7 @@ import {
   updateMonitor,
 } from "../../features/monitors/monitorSlice.js";
 
-import MonitorDetailsSkeleton from "../../components/skeletons/MonitorDetailsSkeleton";
+import MonitorDetailsSkeleton from "../../components/skeletons/MonitorDetailsSkeleton.jsx";
 
 const EditMonitor = () => {
   const dispatch = useDispatch();
