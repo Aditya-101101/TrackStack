@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchMonitors } from "../../features/monitors/monitorSlice.js";
 import MonitorCard from "../../components/monitor/MonitorCard.jsx";
 import MonitorCardSkeleton from "../../components/skeletons/MonitorCardSkeleton.jsx";
-import  Skeleton  from "../../components/ui/skeleton.jsx";
+import  Skeleton  from "../../components/ui/Skeleton.jsx";
 
 function Monitors() {
   // console.log("monitors page loaded")
