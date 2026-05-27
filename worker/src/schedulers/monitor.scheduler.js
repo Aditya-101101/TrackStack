@@ -1,7 +1,7 @@
 import Monitor from '../models/monitor.model.js'
 import checkQueue from '../queues/check.queue.js'
 
-const SCHEDULER_INTERVAL_MS = 60 * 1000;
+const SCHEDULER_INTERVAL_MS = 10 * 1000;
 
 let isSchedulerRunning = false;
 
