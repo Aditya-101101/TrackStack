@@ -25,13 +25,13 @@ import NotFound from "../pages/NotFound.jsx";
 function AppRoutes() {
   return (
     <Routes>
-      
+
       {/* PUBLIC ROUTES */}
+
       <Route
         path="/"
         element={<LandingPage />}
       />
-
       <Route
         path="/login"
         element={<Login />}

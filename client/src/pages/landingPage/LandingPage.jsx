@@ -1,4 +1,12 @@
+import { Navigate } from "react-router-dom";
+
 export default function TrackStackLandingPage() {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+        return <Navigate to="/dashboard" replace />;
+    }
+    
     return (
         <div className="min-h-screen bg-white text-gray-900 dark:bg-black dark:text-white">
 
