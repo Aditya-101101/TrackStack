@@ -1,7 +1,7 @@
 import Monitor from '../models/monitor.model.js'
 import checkQueue from '../queues/check.queue.js'
 
-const SCHEDULER_INTERVAL_MS = 10 * 1000;
+const SCHEDULER_INTERVAL_MS = 30 * 1000;
 
 let isSchedulerRunning = false;
 
@@ -34,7 +34,6 @@ const enqueueDueMonitors = async () => {
                     userId: monitor.userId.toString(),
                 },
                 {
-                    // jobId: `monitor-${monitor._id.toString()}`,
                     attempts: 3,
                     backoff: {
                         type: "exponential",
