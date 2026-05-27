@@ -11,16 +11,13 @@ const MonitorDetailsSkeleton = () => {
   return (
     <div className="page-main space-y-8">
       
-      {/* BACK BUTTON */}
+     
       <Skeleton className="h-6 w-40" />
 
-      {/* TOP CARD */}
       <div className="card card-padding space-y-8">
-        
-        {/* HEADER */}
+
         <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
           
-          {/* LEFT */}
           <div className="space-y-4">
             
             <div className="flex items-center gap-3">
@@ -31,7 +28,7 @@ const MonitorDetailsSkeleton = () => {
             <Skeleton className="h-5 w-80" />
           </div>
 
-          {/* ACTIONS */}
+  
           <div className="flex flex-wrap gap-3">
             <Skeleton className="h-12 w-44 rounded-xl" />
             <Skeleton className="h-12 w-28 rounded-xl" />
@@ -40,7 +37,7 @@ const MonitorDetailsSkeleton = () => {
           </div>
         </div>
 
-        {/* METRICS GRID */}
+        
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
           
           {[...Array(8)].map((_, i) => (
@@ -49,7 +46,6 @@ const MonitorDetailsSkeleton = () => {
         </div>
       </div>
 
-      {/* STATS SECTION */}
       <div className="space-y-4">
         <Skeleton className="h-10 w-64" />
 
@@ -60,7 +56,7 @@ const MonitorDetailsSkeleton = () => {
         </div>
       </div>
 
-      {/* CHARTS */}
+    
       <div className="space-y-6">
         
         {[...Array(3)].map((_, i) => (
@@ -73,12 +69,11 @@ const MonitorDetailsSkeleton = () => {
               <Skeleton className="h-5 w-72" />
             </div>
 
-            <Skeleton className="h-[260px] w-full rounded-2xl" />
+            <Skeleton className="h-65 w-full rounded-2xl" />
           </div>
         ))}
       </div>
 
-      {/* TABLE */}
       <div className="card card-padding space-y-5">
         
         <Skeleton className="h-8 w-48" />

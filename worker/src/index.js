@@ -16,6 +16,7 @@ const { default: connectDB } = await import("./config/db.js");
 
 await connectDB();
 
+
 await import("./workers/check.worker.js");
 await import('./schedulers/monitor.scheduler.js')
 
