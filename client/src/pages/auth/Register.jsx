@@ -1,108 +1,272 @@
 import { useState } from "react";
+
 import { Link, useNavigate } from "react-router-dom";
+
 import { useDispatch, useSelector } from "react-redux";
+
 import { registerUser } from "../../features/auth/authSlice.js";
 
 function Register() {
   const dispatch = useDispatch();
+
   const navigate = useNavigate();
 
-  const { loading, error } = useSelector((state) => state.auth);
+  const {
+    loading,
+    error,
+  } = useSelector(
+    (state) => state.auth
+  );
 
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] =
+    useState({
+      name: "",
+      email: "",
+      password: "",
+    });
 
   function handleChange(e) {
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [e.target.name]:
+        e.target.value,
     }));
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
 
-    const result = await dispatch(registerUser(formData));
+    const result =
+      await dispatch(
+        registerUser(formData)
+      );
 
-    if (registerUser.fulfilled.match(result)) {
+    if (
+      registerUser.fulfilled.match(
+        result
+      )
+    ) {
       navigate("/dashboard");
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-md bg-white rounded-xl shadow p-6">
-        <h1 className="text-2xl font-bold mb-2">Create account</h1>
-        <p className="text-gray-500 mb-6">
-          Start monitoring your websites with TrackStack
-        </p>
+    <div
+      className="
+        flex min-h-screen
+        items-center justify-center
+        bg-gray-100 px-4
+        transition-colors
+        dark:bg-black
+      "
+    >
+      <div
+        className="
+          w-full max-w-md
+          rounded-3xl border
+          border-gray-200
+          bg-white p-8
+          shadow-sm
+          transition-colors
+          dark:border-gray-800
+          dark:bg-gray-950
+        "
+      >
+        <div className="mb-8">
+          <h1
+            className="
+              text-3xl font-bold
+              text-gray-900
+              dark:text-white
+            "
+          >
+            Create account
+          </h1>
+
+          <p
+            className="
+              mt-2 text-sm
+              text-gray-500
+              dark:text-gray-400
+            "
+          >
+            Start monitoring your
+            websites with TrackStack
+          </p>
+        </div>
+
 
         {error && (
-          <div className="mb-4 rounded bg-red-100 text-red-700 px-3 py-2 text-sm">
+          <div
+            className="
+              mb-5 rounded-2xl
+              border border-red-200
+              bg-red-50 px-4 py-3
+              text-sm text-red-700
+              dark:border-red-900
+              dark:bg-red-950/30
+              dark:text-red-400
+            "
+          >
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-5"
+        >
+
           <div>
-            <label className="block mb-1 text-sm font-medium">
+            <label
+              className="
+                mb-2 block
+                text-sm font-medium
+                text-gray-700
+                dark:text-gray-300
+              "
+            >
               Name
             </label>
+
             <input
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-black"
               placeholder="Aditya"
               required
+              className="
+                w-full rounded-2xl
+                border border-gray-200
+                bg-white px-4 py-3
+                text-gray-900
+                outline-none transition
+                placeholder:text-gray-400
+                focus:border-black
+                dark:border-gray-800
+                dark:bg-black
+                dark:text-white
+                dark:placeholder:text-gray-500
+                dark:focus:border-white
+              "
             />
           </div>
 
+
           <div>
-            <label className="block mb-1 text-sm font-medium">
+            <label
+              className="
+                mb-2 block
+                text-sm font-medium
+                text-gray-700
+                dark:text-gray-300
+              "
+            >
               Email
             </label>
+
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-black"
               placeholder="you@example.com"
               required
+              className="
+                w-full rounded-2xl
+                border border-gray-200
+                bg-white px-4 py-3
+                text-gray-900
+                outline-none transition
+                placeholder:text-gray-400
+                focus:border-black
+                dark:border-gray-800
+                dark:bg-black
+                dark:text-white
+                dark:placeholder:text-gray-500
+                dark:focus:border-white
+              "
             />
           </div>
 
+
           <div>
-            <label className="block mb-1 text-sm font-medium">
+            <label
+              className="
+                mb-2 block
+                text-sm font-medium
+                text-gray-700
+                dark:text-gray-300
+              "
+            >
               Password
             </label>
+
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-black"
               placeholder="••••••••"
               required
+              className="
+                w-full rounded-2xl
+                border border-gray-200
+                bg-white px-4 py-3
+                text-gray-900
+                outline-none transition
+                placeholder:text-gray-400
+                focus:border-black
+                dark:border-gray-800
+                dark:bg-black
+                dark:text-white
+                dark:placeholder:text-gray-500
+                dark:focus:border-white
+              "
             />
           </div>
 
+
           <button
             disabled={loading}
-            className="w-full bg-black text-white rounded-lg py-2 font-medium disabled:opacity-60"
+            className="
+              w-full rounded-2xl
+              bg-black py-3
+              font-medium text-white
+              transition hover:bg-gray-800
+              disabled:cursor-not-allowed
+              disabled:opacity-60
+              dark:bg-white
+              dark:text-black
+              dark:hover:bg-gray-200
+            "
           >
-            {loading ? "Creating account..." : "Register"}
+            {loading
+              ? "Creating account..."
+              : "Register"}
           </button>
         </form>
 
-        <p className="text-sm text-gray-600 mt-4">
+
+        <p
+          className="
+            mt-6 text-sm
+            text-gray-600
+            dark:text-gray-400
+          "
+        >
           Already have an account?{" "}
-          <Link to="/login" className="font-medium text-black">
+
+          <Link
+            to="/login"
+            className="
+              font-semibold
+              text-black hover:underline
+              dark:text-white
+            "
+          >
             Login
           </Link>
         </p>
