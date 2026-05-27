@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-
+import LandingPage from "../pages/LandingPage.jsx";
 import ProtectedRoute from "../components/ProtectedRoute.jsx";
 
 import Login from "../pages/auth/Login.jsx";
@@ -20,6 +20,7 @@ import NotFound from "../pages/NotFound.jsx";
 function AppRoutes() {
   return (
     <Routes>
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route
@@ -33,7 +34,7 @@ function AppRoutes() {
         <Route index element={<Dashboard />} />
         <Route path="dashboard" element={<Dashboard />} />
 
-        <Route path="monitors" element={<Monitors/>} />
+        <Route path="monitors" element={<Monitors />} />
         <Route path="monitors/create" element={<CreateMonitor />} />
         <Route path="monitors/:id/edit" element={<EditMonitor />} />
         <Route path="monitors/:id" element={<MonitorDetails />} />
