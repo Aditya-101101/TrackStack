@@ -58,6 +58,7 @@ export const loginUser = asyncHandler(async (req, res) => {
 
     const token = generateToken(user._id)
 
+    console.log(token)
 
     res.status(200).cookie("token", token, {
         httpOnly: true,
