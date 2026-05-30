@@ -1,7 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
-
+import cookieParser from 'cookie-parser'
 import errorMiddleware from "./middleware/error.middleware.js";
 import authRoutes from './routes/auth.routes.js'
 import monitorRoutes from './routes/monitor.routes.js'
@@ -22,6 +22,7 @@ app.use(cors({
 }))
 
 app.use(express.json())
+app.use(cookieParser())
 
 app.get('/', (req, res) => {
     res.json({ message: "TrackStack API running" })
@@ -36,8 +37,8 @@ app.get('/health', (req, res) => {
 
 app.use('/api/auth', authRoutes)
 app.use('/api', incidentRoutes)
-app.use('/api/dashboard',dashboardRoutes)
-app.use('/api/monitors',statsRoute)
+app.use('/api/dashboard', dashboardRoutes)
+app.use('/api/monitors', statsRoute)
 app.use('/api/monitors', checkRoutes)
 app.use('/api/monitors', resultRoutes)
 app.use('/api/monitors', monitorRoutes)

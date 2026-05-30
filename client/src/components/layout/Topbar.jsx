@@ -8,7 +8,7 @@ import {
   Menu,
 } from "lucide-react";
 
-import { logout } from "../../features/auth/authSlice.js";
+import { logoutUser } from "../../features/auth/authSlice.js";
 
 import {
   applyTheme,
@@ -45,7 +45,7 @@ function Topbar({ setSidebarOpen }) {
   }, []);
 
   function handleLogout() {
-    dispatch(logout());
+    dispatch(logoutUser());
 
     navigate("/login");
   }

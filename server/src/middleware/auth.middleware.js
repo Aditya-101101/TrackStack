@@ -3,14 +3,9 @@ import User from '../models/user.model.js'
 import asyncHandler from '../utility/asyncHandler.js'
 import ApiError from '../utility/ApiError.js'
 
-
 export const authenticate = asyncHandler(async (req, res, next) => {
-    let token;
 
-    const authHeader = req.headers.authorization
-
-    if (authHeader && authHeader.startsWith("Bearer "))
-        token = authHeader.split(" ")[1]
+    const token = req.cookies.token
 
     if (!token)
         throw new ApiError(401, "Not authorized , token missing")

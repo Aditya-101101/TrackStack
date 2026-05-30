@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
-import { logout } from "../../features/auth/authSlice.js";
+import { useNavigate } from "react-router-dom";
+import { logoutUser } from "../../features/auth/authSlice.js";
 
 import {
   applyTheme,
@@ -10,13 +10,15 @@ import {
 
 const Settings = () => {
   const dispatch = useDispatch();
+  const Navigate = useNavigate();
 
   const { user } = useSelector((state) => state.auth);
 
   const [theme, setTheme] = useState(getStoredTheme());
 
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(logoutUser());
+    Navigate("/login");
   };
 
   const handleThemeChange = (e) => {
