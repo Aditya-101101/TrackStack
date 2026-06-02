@@ -10,70 +10,70 @@ import "../models/user.model.js";
 console.log("Check worker listening for jobs...");
 
 const checkWorker = new Worker(
-    "check-queue",
-    async (job) => {
-        console.log("Processing check job:", job.id, job.name);
+  "check-queue",
+  async (job) => {
+    console.log("Processing check job:", job.id, job.name);
 
-        const { monitorId, userId } = job.data;
+    const { monitorId, userId } = job.data;
 
-        const monitor = await Monitor.findOne({
-            _id: monitorId,
-            userId,
-        }).populate("userId", "email");
+    const monitor = await Monitor.findOne({
+      _id: monitorId,
+      userId,
+    }).populate("userId", "email");
 
-        if (!monitor) {
-            throw new Error("Monitor not found");
-        }
+    if (!monitor) {
+      throw new Error("Monitor not found");
+    }
 
-        if (!monitor.isActive) {
-            throw new Error("Monitor is paused");
-        }
+    if (!monitor.isActive) {
+      throw new Error("Monitor is paused");
+    }
 
-        const ownerId = monitor.userId._id || monitor.userId;
-        const ownerEmail = monitor.userId.email;
+    const ownerId = monitor.userId._id || monitor.userId;
+    const ownerEmail = monitor.userId.email;
 
-        const previousStatus = monitor.status;
+    const previousStatus = monitor.status;
 
-        const result = await performHttpCheck(monitor);
+    const result = await performHttpCheck(monitor);
 
-        await Result.create({
-            monitorId: monitor._id,
-            userId: ownerId,
-            status: result.status,
-            statusCode: result.statusCode,
-            responseTime: result.responseTime,
-            errorMessage: result.errorMessage,
-            checkedAt: new Date(),
+    await Result.create({
+      monitorId: monitor._id,
+      userId: ownerId,
+      status: result.status,
+      statusCode: result.statusCode,
+      responseTime: result.responseTime,
+      errorMessage: result.errorMessage,
+      checkedAt: new Date(),
+    });
+
+    try {
+      if (result.status === "DOWN" && previousStatus !== "DOWN") {
+        const existingOpenIncident = await Incident.findOne({
+          monitorId: monitor._id,
+          userId: ownerId,
+          status: "OPEN",
         });
 
-        try {
-            if (result.status === "DOWN" && previousStatus !== "DOWN") {
-                const existingOpenIncident = await Incident.findOne({
-                    monitorId: monitor._id,
-                    userId: ownerId,
-                    status: "OPEN",
-                });
+        if (!existingOpenIncident) {
+          const incident = await Incident.create({
+            monitorId: monitor._id,
+            userId: ownerId,
+            status: "OPEN",
+            startedAt: new Date(),
+            reason:
+              result.errorMessage ||
+              (result.statusCode
+                ? `HTTP status ${result.statusCode}`
+                : "Monitor is down"),
+          });
 
-                if (!existingOpenIncident) {
-                    const incident = await Incident.create({
-                        monitorId: monitor._id,
-                        userId: ownerId,
-                        status: "OPEN",
-                        startedAt: new Date(),
-                        reason:
-                            result.errorMessage ||
-                            (result.statusCode
-                                ? `HTTP status ${result.statusCode}`
-                                : "Monitor is down"),
-                    });
+          console.log(`Incident opened for monitor: ${monitor.name}`);
 
-                    console.log(`Incident opened for monitor: ${monitor.name}`);
-
-                    if (ownerEmail) {
-                        await sendEmail({
-                            to: ownerEmail,
-                            subject: `🚨 DOWN: ${monitor.name}`,
-                            html: `
+          if (ownerEmail) {
+            await sendEmail({
+              to: ownerEmail,
+              subject: `🚨 DOWN: ${monitor.name}`,
+              html: `
   <div style="font-family: Arial, sans-serif; background-color: #f8fafc; padding: 24px;">
     <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb;">
       
@@ -123,32 +123,32 @@ const checkWorker = new Worker(
     </div>
   </div>
 `,
-                        });
+            });
 
-                        console.log(`DOWN alert email sent to ${ownerEmail}`);
-                    }
-                }
-            }
+            console.log(`DOWN alert email sent to ${ownerEmail}`);
+          }
+        }
+      }
 
-            if (result.status === "UP" && previousStatus === "DOWN") {
-                const openIncident = await Incident.findOne({
-                    monitorId: monitor._id,
-                    userId: ownerId,
-                    status: "OPEN",
-                });
+      if (result.status === "UP" && previousStatus === "DOWN") {
+        const openIncident = await Incident.findOne({
+          monitorId: monitor._id,
+          userId: ownerId,
+          status: "OPEN",
+        });
 
-                if (openIncident) {
-                    openIncident.status = "RESOLVED";
-                    openIncident.resolvedAt = new Date();
-                    await openIncident.save();
+        if (openIncident) {
+          openIncident.status = "RESOLVED";
+          openIncident.resolvedAt = new Date();
+          await openIncident.save();
 
-                    console.log(`Incident resolved for monitor: ${monitor.name}`);
+          console.log(`Incident resolved for monitor: ${monitor.name}`);
 
-                    if (ownerEmail) {
-                        await sendEmail({
-                            to: ownerEmail,
-                            subject: `✅ RECOVERED: ${monitor.name}`,
-                            html: `
+          if (ownerEmail) {
+            await sendEmail({
+              to: ownerEmail,
+              subject: `✅ RECOVERED: ${monitor.name}`,
+              html: `
   <div style="font-family: Arial, sans-serif; background-color: #f8fafc; padding: 24px;">
     <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb;">
       
@@ -195,48 +195,48 @@ const checkWorker = new Worker(
     </div>
   </div>
 `,
-                        });
+            });
 
-                        console.log(`Recovery email sent to ${ownerEmail}`);
-                    }
-                }
-            }
-        } catch (error) {
-            console.error("Incident/email logic error:", error.message);
-            console.error(error);
+            console.log(`Recovery email sent to ${ownerEmail}`);
+          }
         }
-
-        monitor.status = result.status;
-        monitor.lastCheckedAt = new Date();
-        monitor.lastResponseTime = result.responseTime;
-        monitor.nextCheckAt = new Date(Date.now() + monitor.interval * 1000);
-
-        if (result.status === "UP") {
-            monitor.consecutiveSuccesses += 1;
-            monitor.consecutiveFailures = 0;
-        }
-
-        if (result.status === "DOWN") {
-            monitor.consecutiveFailures += 1;
-            monitor.consecutiveSuccesses = 0;
-        }
-
-        await monitor.save();
-
-        console.log(`Monitor ${monitor.name} checked: ${result.status}`);
-    },
-    {
-        connection: redisConnection,
+      }
+    } catch (error) {
+      console.error("Incident/email logic error:", error.message);
+      console.error(error);
     }
+
+    monitor.status = result.status;
+    monitor.lastCheckedAt = new Date();
+    monitor.lastResponseTime = result.responseTime;
+    monitor.nextCheckAt = new Date(Date.now() + monitor.interval * 1000);
+
+    if (result.status === "UP") {
+      monitor.consecutiveSuccesses += 1;
+      monitor.consecutiveFailures = 0;
+    }
+
+    if (result.status === "DOWN") {
+      monitor.consecutiveFailures += 1;
+      monitor.consecutiveSuccesses = 0;
+    }
+
+    await monitor.save();
+
+    console.log(`Monitor ${monitor.name} checked: ${result.status}`);
+  },
+  {
+    connection: redisConnection,
+  }
 );
 
 checkWorker.on("completed", (job) => {
-    console.log("Check job completed:", job.id);
+  console.log("Check job completed:", job.id);
 });
 
 checkWorker.on("failed", (job, error) => {
-    console.error("Check job failed:", job?.id, error.message);
-    console.log(error);
+  console.error("Check job failed:", job?.id, error.message);
+  console.log(error);
 });
 
 export default checkWorker;

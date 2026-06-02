@@ -1,9 +1,12 @@
 import { Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 export default function TrackStackLandingPage() {
-    const token = localStorage.getItem("token");
+     const { user } = useSelector(
+    (state) => state.auth
+  );
 
-    if (token) {
+    if (user) {
         return <Navigate to="/dashboard" replace />;
     }
     
