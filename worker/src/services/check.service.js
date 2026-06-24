@@ -11,7 +11,7 @@ export const performHttpCheck = async (monitor) => {
             validateStatus: () => true,
         })
 
-        console.log(response)
+        // console.log(response)
 
         const responseTime = Date.now() - startTime;
 
@@ -43,11 +43,25 @@ export const performHttpCheck = async (monitor) => {
             statusText: error.response?.statusText,
         });
 
+        let message = error.message;
+
+        if (error.code === "ECONNRESET")
+            message = "Connection reset by remote server";
+
+        if (error.code === "ETIMEDOUT")
+            message = "Request timed out";
+
+        if (error.code === "ENOTFOUND")
+            message = "DNS lookup failed";
+
+        if (error.code === "ECONNREFUSED")
+            message = "Connection refused";
+
         return {
             status: "DOWN",
-            statusCode: error.response?.status || null,
+            statusCode: error.response?.status ?? null,
             responseTime,
-            errorMessage: error.message,
+            errorMessage: message,
         };
     }
 }

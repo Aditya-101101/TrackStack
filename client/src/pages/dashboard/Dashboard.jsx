@@ -211,22 +211,22 @@ function Dashboard() {
               >
                 <div className="flex justify-between items-start">
 
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <h3 className="card-title">
                       {monitor.name}
                     </h3>
 
-                    <p className="muted-text text-sm mt-1 truncate word-wrap">
+                    <p className="muted-text text-sm mt-1 break-all">
                       {monitor.url}
                     </p>
                   </div>
 
                   <span
                     className={`text-sm font-semibold ${!monitor.isActive
-                        ? "text-yellow-400"
-                        : monitor.status === "UP"
-                          ? "text-green-400"
-                          : "text-red-400"
+                      ? "text-yellow-400"
+                      : monitor.status === "UP"
+                        ? "text-green-400"
+                        : "text-red-400"
                       }`}
                   >
                     {!monitor.isActive
@@ -250,7 +250,7 @@ function Dashboard() {
           </div>
         )}
       </div>
- 
+
     </div>
   );
 }

@@ -71,8 +71,12 @@ const monitorSchema = new mongoose.Schema({
         type: Number,
         default: null,
     },
-},
-    { timestamps: true })
+},{ timestamps: true })
+
+
+monitorSchema.index({ userId: 1, createdAt: -1 });
+monitorSchema.index({ userId: 1, status: 1 });
+monitorSchema.index({ isActive: 1, nextCheckAt: 1 });
 
 const Monitor = mongoose.model('Monitor', monitorSchema)
 

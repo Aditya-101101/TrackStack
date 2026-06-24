@@ -47,7 +47,9 @@ const checkWorker = new Worker(
     });
 
     try {
-      if (result.status === "DOWN" && previousStatus !== "DOWN") {
+      const failures = monitor.consecutiveFailures + 1;
+
+      if (result.status === "DOWN" && failures >= 3 && previousStatus !== "DOWN") {
         const existingOpenIncident = await Incident.findOne({
           monitorId: monitor._id,
           userId: ownerId,
@@ -130,7 +132,9 @@ const checkWorker = new Worker(
         }
       }
 
-      if (result.status === "UP" && previousStatus === "DOWN") {
+      const successes = monitor.consecutiveSuccesses + 1;
+
+      if (result.status === "UP" && successes >= 3 && previousStatus === "DOWN") {
         const openIncident = await Incident.findOne({
           monitorId: monitor._id,
           userId: ownerId,
@@ -207,22 +211,41 @@ const checkWorker = new Worker(
       console.error(error);
     }
 
-    monitor.status = result.status;
-    monitor.lastCheckedAt = new Date();
-    monitor.lastResponseTime = result.responseTime;
-    monitor.nextCheckAt = new Date(Date.now() + monitor.interval * 1000);
+    const update = {
+      status: result.status,
+      lastCheckedAt: new Date(),
+      lastResponseTime: result.responseTime,
+      nextCheckAt: new Date(
+        Date.now() + monitor.interval * 1000
+      ),
+    };
+
 
     if (result.status === "UP") {
-      monitor.consecutiveSuccesses += 1;
-      monitor.consecutiveFailures = 0;
+      update.consecutiveSuccesses =
+        monitor.consecutiveSuccesses + 1;
+
+      update.consecutiveFailures = 0;
     }
+
 
     if (result.status === "DOWN") {
-      monitor.consecutiveFailures += 1;
-      monitor.consecutiveSuccesses = 0;
+      update.consecutiveFailures =
+        monitor.consecutiveFailures + 1;
+
+      update.consecutiveSuccesses = 0;
     }
 
-    await monitor.save();
+
+    await Monitor.updateOne(
+      {
+        _id: monitor._id,
+        userId,
+      },
+      {
+        $set: update,
+      }
+    );
 
     console.log(`Monitor ${monitor.name} checked: ${result.status}`);
   },

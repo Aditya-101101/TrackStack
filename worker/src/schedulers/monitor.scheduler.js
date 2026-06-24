@@ -17,8 +17,8 @@ const enqueueDueMonitors = async () => {
 
         const dueMonitors = await Monitor.find({
             isActive: true,
-            nextCheckAt: { $lte: now },
-        }).limit(50);
+            nextCheckAt: { $lte: now }
+        }).sort({ nextCheckAt: 1 }).limit(50);
 
         if (dueMonitors.length === 0) {
             return;
@@ -34,15 +34,19 @@ const enqueueDueMonitors = async () => {
                     userId: monitor.userId.toString(),
                 },
                 {
+                    jobId: monitor._id.toString(),
+
                     attempts: 3,
+
                     backoff: {
                         type: "exponential",
-                        delay: 2000,
+                        delay: 2000
                     },
+
                     removeOnComplete: true,
-                    removeOnFail: 100,
+                    removeOnFail: 100
                 }
-            );
+            )
 
             console.log(
                 `Scheduled check queued for monitor: ${monitor.name}, jobId: ${job.id}`
