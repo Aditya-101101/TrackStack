@@ -216,7 +216,7 @@ function Dashboard() {
                       {monitor.name}
                     </h3>
 
-                    <p className="muted-text text-sm mt-1 truncate">
+                    <p className="muted-text text-sm mt-1 truncate word-wrap">
                       {monitor.url}
                     </p>
                   </div>

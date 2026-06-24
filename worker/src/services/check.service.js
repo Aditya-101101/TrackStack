@@ -11,6 +11,8 @@ export const performHttpCheck = async (monitor) => {
             validateStatus: () => true,
         })
 
+        console.log(response)
+
         const responseTime = Date.now() - startTime;
 
         console.log("CHECK RESPONSE:", {

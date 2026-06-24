@@ -141,6 +141,7 @@ const checkWorker = new Worker(
           openIncident.status = "RESOLVED";
           openIncident.resolvedAt = new Date();
           await openIncident.save();
+          monitor.nextCheckAt = new Date(Date.now());
 
           console.log(`Incident resolved for monitor: ${monitor.name}`);
 
