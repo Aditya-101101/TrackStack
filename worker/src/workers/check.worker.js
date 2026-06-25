@@ -49,7 +49,7 @@ const checkWorker = new Worker(
     try {
       const failures = monitor.consecutiveFailures + 1;
 
-      if (result.status === "DOWN" && failures >= 3 && previousStatus !== "DOWN") {
+      if (result.status === "DOWN" && failures >= 3 && previousStatus === "DOWN") {
         const existingOpenIncident = await Incident.findOne({
           monitorId: monitor._id,
           userId: ownerId,
@@ -134,7 +134,7 @@ const checkWorker = new Worker(
 
       const successes = monitor.consecutiveSuccesses + 1;
 
-      if (result.status === "UP" && successes >= 3 && previousStatus === "DOWN") {
+      if (result.status === "UP" && successes >= 3 && previousStatus === "UP") {
         const openIncident = await Incident.findOne({
           monitorId: monitor._id,
           userId: ownerId,
